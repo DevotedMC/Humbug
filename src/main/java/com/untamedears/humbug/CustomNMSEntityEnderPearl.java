@@ -1,11 +1,13 @@
 package com.untamedears.humbug;
 
-import net.minecraft.server.v1_8_R2.EntityEnderPearl;
-import net.minecraft.server.v1_8_R2.EntityLiving;
-import net.minecraft.server.v1_8_R2.NBTTagCompound;
-import net.minecraft.server.v1_8_R2.World;
+import net.minecraft.server.v1_8_R3.EntityEnderPearl;
+import net.minecraft.server.v1_8_R3.EntityLiving;
+import net.minecraft.server.v1_8_R3.NBTTagCompound;
+import net.minecraft.server.v1_8_R3.World;
+
 import org.bukkit.Bukkit;
 
+@Deprecated
 public class CustomNMSEntityEnderPearl extends EntityEnderPearl {
   private long tick_ = 0L;
   private double startDeltaX_ = 0.0D;

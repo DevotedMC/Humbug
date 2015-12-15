@@ -1,8 +1,8 @@
 package com.untamedears.humbug;
 
-import org.bukkit.craftbukkit.v1_8_R2.entity.CraftHorse;
-import net.minecraft.server.v1_8_R2.EntityHorse;
-import net.minecraft.server.v1_8_R2.GenericAttributes;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftHorse;
+import net.minecraft.server.v1_8_R3.EntityHorse;
+import net.minecraft.server.v1_8_R3.GenericAttributes;
 import org.bukkit.entity.Entity;
 
 public class Versioned {
@@ -15,7 +15,7 @@ public class Versioned {
     }
     EntityHorse mcHorseAlot = ((CraftHorse)entity).getHandle();
     // GenericAttributes.d == generic.movementSpeed
-    return mcHorseAlot.getAttributeInstance(GenericAttributes.d).b();
+    return mcHorseAlot.getAttributeInstance(GenericAttributes.MOVEMENT_SPEED).b();
   }
 
   public static void setHorseSpeed(Entity entity, double speedModifier) {
@@ -23,6 +23,6 @@ public class Versioned {
       return;
     }
     EntityHorse mcHorseAlot = ((CraftHorse)entity).getHandle();
-    mcHorseAlot.getAttributeInstance(GenericAttributes.d).setValue(speedModifier);
+    mcHorseAlot.getAttributeInstance(GenericAttributes.MOVEMENT_SPEED).setValue(speedModifier);
   }
 }

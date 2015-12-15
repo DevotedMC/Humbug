@@ -2,48 +2,83 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>com.untamedears</groupId>
-  <artifactId>Humbug</artifactId>
-  <packaging>jar</packaging>
-  <version>1.6.1</version>
-  <name>Humbug</name>
-  <url>https://github.com/erocs/Humbug</url>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.untamedears</groupId>
+	<artifactId>Humbug</artifactId>
+	<packaging>jar</packaging>
+	<version>1.6.9</version>
+	<name>Humbug</name>
+	<url>https://github.com/Civcraft/Humbug</url>
 
-  <properties>
-    <maven.compiler.source>1.7</maven.compiler.source>
-    <maven.compiler.target>1.7</maven.compiler.target>
-  </properties>
-  
-  <build>
-    <sourceDirectory>${basedir}/src</sourceDirectory>
-    
-    <resources>
-      <resource>
-        <directory>${basedir}</directory>
-        <includes>
-          <include>*.yml</include>
-          <include>LICENSE.txt</include>
-        </includes>
-      </resource>
-    </resources>
-  </build>
+	<properties>
+		<maven.compiler.source>1.7</maven.compiler.source>
+		<maven.compiler.target>1.7</maven.compiler.target>
+	</properties>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.spigotmc</groupId>
-      <artifactId>Spigot1.8.3</artifactId>
-      <version>1.8.3</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.untamedears</groupId>
-      <artifactId>Combat-Tag</artifactId>
-      <version>[6.0,)</version>
-      <scope>provided</scope>
-    </dependency>
-  </dependencies>
-  
-  <repositories>
-  </repositories>
+	<build>
+		<finalName>${project.name}</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal> 
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<finalName>${project.artifactId}.${project.version}</finalName>
+					<filters>
+					</filters>
+				</configuration>
+			</plugin>
+		</plugins>
+		<sourceDirectory>${basedir}/src</sourceDirectory>
+
+		<resources>
+			<resource>
+				<directory>${basedir}</directory>
+				<includes>
+					<include>*.yml</include>
+					<include>LICENSE.txt</include>
+				</includes>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.spigotmc</groupId>
+			<artifactId>Spigot1.8.7</artifactId>
+			<version>1.8.7</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.untamedears</groupId>
+			<artifactId>Combat-Tag</artifactId>
+			<version>[6.0,)</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.minelink</groupId>
+			<artifactId>CombatTagPlus</artifactId>
+			<version>1.2.0</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>Jenkins-repo</id>
+			<url>http://build.civcraft.co:8080/plugin/repository/everything/</url>
+		</repository>
+		<repository>
+			<id>CombatTagPlus Repo</id>
+			<url>http://repo.minelink.net/content/repositories/public</url>
+		</repository>
+	</repositories>
 </project>

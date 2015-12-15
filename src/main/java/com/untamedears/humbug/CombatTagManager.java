@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 import com.trc202.CombatTag.CombatTag;
 import com.trc202.CombatTagApi.CombatTagApi;
 
-class CombatTagManager {
+class CombatTagManager implements CombatInterface{
     private CombatTagApi combatTagApi_;
     private boolean combatTagEnabled_ = false;
 

@@ -1,10 +1,10 @@
-name: Humbug
+name: ${project.name}
 main: com.untamedears.humbug.Humbug
-version: 1.6.1
-softdepend: [CombatTag]
+version: ${project.version}
+softdepend: [CombatTag, CombatTagPlus]
 description: toggles various functionality
 author: erocs
-authors: [ProgrammerDan]
+authors: [ProgrammerDan, rourke750]
 database: false
 commands:
   humbug:

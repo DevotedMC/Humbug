@@ -1,16 +1,17 @@
 package com.untamedears.humbug;
 
 
-import net.minecraft.server.v1_8_R2.EntityHuman;
-import net.minecraft.server.v1_8_R2.Item;
-import net.minecraft.server.v1_8_R2.ItemEnderPearl;
-import net.minecraft.server.v1_8_R2.ItemStack;
-import net.minecraft.server.v1_8_R2.StatisticList;
-import net.minecraft.server.v1_8_R2.World;
+import net.minecraft.server.v1_8_R3.EntityHuman;
+import net.minecraft.server.v1_8_R3.Item;
+import net.minecraft.server.v1_8_R3.ItemEnderPearl;
+import net.minecraft.server.v1_8_R3.ItemStack;
+import net.minecraft.server.v1_8_R3.StatisticList;
+import net.minecraft.server.v1_8_R3.World;
 
 import com.untamedears.humbug.Config;
 import com.untamedears.humbug.CustomNMSEntityEnderPearl;
 
+@Deprecated
 public class CustomNMSItemEnderPearl extends ItemEnderPearl {
   private Config cfg_;
 

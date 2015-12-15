@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,12 +16,12 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.minecraft.server.v1_8_R2.EntityEnderPearl;
-import net.minecraft.server.v1_8_R2.EntityTypes;
-import net.minecraft.server.v1_8_R2.Item;
-import net.minecraft.server.v1_8_R2.ItemEnderPearl;
-import net.minecraft.server.v1_8_R2.MinecraftKey;
-import net.minecraft.server.v1_8_R2.RegistryID;
+import net.minecraft.server.v1_8_R3.EntityEnderPearl;
+import net.minecraft.server.v1_8_R3.EntityTypes;
+import net.minecraft.server.v1_8_R3.Item;
+import net.minecraft.server.v1_8_R3.ItemEnderPearl;
+import net.minecraft.server.v1_8_R3.MinecraftKey;
+import net.minecraft.server.v1_8_R3.RegistryID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -33,6 +34,7 @@ import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.ContainerBlock;
 import org.bukkit.block.Sign;
 import org.bukkit.block.Hopper;
 import org.bukkit.command.Command;
@@ -64,6 +66,7 @@ import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
@@ -84,6 +87,7 @@ import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.entity.SheepDyeWoolEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -163,7 +167,7 @@ public class Humbug extends JavaPlugin implements Listener {
   }
 
   private Random prng_ = new Random();
-  private CombatTagManager combatTag_ = new CombatTagManager();
+  private CombatInterface combatTag_;
 
   public Humbug() {}
 
@@ -743,7 +747,7 @@ public class Humbug extends JavaPlugin implements Listener {
     @BahHumbug(opt="portal_extra_wither_skele_spawn_rate", type=OptType.Int),
     @BahHumbug(opt="portal_pig_spawn_multiplier", type=OptType.Int)
   })
-  @EventHandler(priority = EventPriority.HIGH, ignoreCancelled=true)
+  @EventHandler(priority = EventPriority.LOW, ignoreCancelled=true)
   public void spawnMoreHellMonsters(CreatureSpawnEvent e) {
     final Location loc = e.getLocation();
     final World world = loc.getWorld();
@@ -1173,6 +1177,11 @@ public class Humbug extends JavaPlugin implements Listener {
       return;
     }
     Block block = event.getBlock();
+    Material material = block.getType();
+    if (!material.equals(Material.LAVA) &&
+        !material.equals(Material.STATIONARY_LAVA)) {
+      return;
+    }
     LavaAreaCheck(block, config_.get("cobble_from_lava_scan_radius").getInt());
   }
 
@@ -1308,8 +1317,10 @@ public class Humbug extends JavaPlugin implements Listener {
     Bukkit.getScheduler().runTaskLater(this, new Runnable() {
       @Override
       public void run() {
-        combatTag_.tagPlayer(loginPlayer.getName());
-        loginPlayer.sendMessage("You have been Combat Tagged on Login");
+    	  if (loginPlayer == null)
+    		  return;
+    	  combatTag_.tagPlayer(loginPlayer.getName());
+    	  loginPlayer.sendMessage("You have been Combat Tagged on Login");
       }
     }, 2L);
   }
@@ -1682,6 +1693,19 @@ public class Humbug extends JavaPlugin implements Listener {
       }
     }
   }
+  
+  @BahHumbugs({
+	  @BahHumbug(opt="disable_bed_nether_end", def="true")
+  })
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void onPlayerEnterBed(BlockPlaceEvent event) {
+	  Block b = event.getBlock();
+	  if (!(b.getType() == Material.BED || b.getType() == Material.BED_BLOCK))
+		  return;
+	  Environment env = b.getLocation().getWorld().getEnvironment();
+	  if (config_.get("disable_bed_nether_end").getBool() && (env == Environment.NETHER || env == Environment.THE_END))
+		  event.setCancelled(true);
+  }
 
   //=================================================
   // Bow shots cause slow debuff
@@ -1765,11 +1789,13 @@ public class Humbug extends JavaPlugin implements Listener {
 
   // Changes the yield from an XP bottle
   @BahHumbugs ({
+    @BahHumbug(opt="ignore_experience", def="false"),
     @BahHumbug(opt="disable_experience", def="true"),
     @BahHumbug(opt="xp_per_bottle", type=OptType.Int, def="10")
   })
   @EventHandler(priority=EventPriority.HIGHEST)
   public void onExpBottleEvent(ExpBottleEvent event) {
+    if (config_.get("ignore_experience").getBool()) return;
     final int bottle_xp = config_.get("xp_per_bottle").getInt();
     if (config_.get("disable_experience").getBool()) {
       ((Player) event.getEntity().getShooter()).giveExp(bottle_xp);
@@ -1782,6 +1808,7 @@ public class Humbug extends JavaPlugin implements Listener {
   // Diables all XP gain except when manually changed via code.
   @EventHandler
   public void onPlayerExpChangeEvent(PlayerExpChangeEvent event) {
+    if (config_.get("ignore_experience").getBool()) return;
     if (config_.get("disable_experience").getBool()) {
       event.setAmount(0);
     }
@@ -1806,7 +1833,7 @@ public class Humbug extends JavaPlugin implements Listener {
       return;
     }
     Chunk chunk = event.getChunk();
-    long chunk_id = (long)chunk.getX() << 32L + (long)chunk.getZ();
+    long chunk_id = ((long)chunk.getX() << 32L) + (long)chunk.getZ();
     if (end_portal_scanned_chunks_.contains(chunk_id)) {
       return;
     }
@@ -2468,7 +2495,7 @@ public class Humbug extends JavaPlugin implements Listener {
     }
     Chunk chunk = event.getChunk();
     String world = chunk.getWorld().getName();
-    long chunk_id = (long)chunk.getX() << 32L + (long)chunk.getZ();
+    long chunk_id = ((long)chunk.getX() << 32L) + (long)chunk.getZ();
     if (signs_scanned_chunks_.containsKey(world)) {
       if (signs_scanned_chunks_.get(world).contains(chunk_id)) {
         return;
@@ -2504,6 +2531,41 @@ public class Humbug extends JavaPlugin implements Listener {
       }
     }
   }
+  
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void adminAccessBlockedChest(PlayerInteractEvent e) {
+	  if (!e.getPlayer().hasPermission("humbug.admin") && !e.getPlayer().isOp()) {
+		  return;
+	  }
+	  if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+		  Player p = e.getPlayer();
+		  Set <Material> s = new TreeSet<Material>();
+		  s.add(Material.AIR);
+		  s.add(Material.OBSIDIAN); //probably in a vault
+		  List <Block> blocks = p.getLineOfSight(s, 8);
+		  for(Block b:blocks) {
+			  Material m = b.getType();
+			  if(m == Material.CHEST || m == Material.TRAPPED_CHEST) {
+				  if(b.getRelative(BlockFace.UP).getType().isOccluding()) {
+					  //dont show inventory twice if a normal chest is opened
+					  final Inventory che_inv = ((InventoryHolder)b.getState()).getInventory();
+						    p.openInventory(che_inv);
+						    p.updateInventory();	  
+				  }
+				  break;
+			  }
+		  }
+	  }
+  }
+  
+  //there is a bug in minecraft 1.8, which allows fire and vines to spread into unloaded chunks
+  //where they can replace any existing block
+  @EventHandler(priority = EventPriority.LOWEST)
+  public void fixSpreadInUnloadedChunks(BlockSpreadEvent e) {
+	  if (!e.getBlock().getChunk().isLoaded()) {
+		  e.setCancelled(true);
+	  }
+  }
 
   // ================================================
   // General
@@ -2523,6 +2585,10 @@ public class Humbug extends JavaPlugin implements Listener {
     registerTimerForPearlCheck();
     global_instance_ = this;
     info("Enabled");
+    if (Bukkit.getPluginManager().getPlugin("CombatTag") != null)
+    	combatTag_ = new CombatTagManager();
+    else if (Bukkit.getPluginManager().getPlugin("CombatTagPlus") != null)
+    	combatTag_ = new CombatTagPlusManager();
   }
   
   public void onDisable() {
@@ -2678,9 +2744,15 @@ public class Humbug extends JavaPlugin implements Listener {
 
   private void registerEvents() {
     getServer().getPluginManager().registerEvents(this, this);
+    getServer().getScheduler().scheduleSyncRepeatingTask(this, new DiskMonitor(this), 0L, 20L*60L); //once a minute
   }
 
   private void loadConfiguration() {
     config_ = Config.initialize(this);
+  }
+  
+  @BahHumbug(opt="disk_space_shutdown", type = OptType.Double, def = "0.02")
+  public Config getHumbugConfig() {
+	  return config_;
   }
 }
