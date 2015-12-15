@@ -1789,11 +1789,13 @@ public class Humbug extends JavaPlugin implements Listener {
 
   // Changes the yield from an XP bottle
   @BahHumbugs ({
+    @BahHumbug(opt="ignore_experience", def="false"),
     @BahHumbug(opt="disable_experience", def="true"),
     @BahHumbug(opt="xp_per_bottle", type=OptType.Int, def="10")
   })
   @EventHandler(priority=EventPriority.HIGHEST)
   public void onExpBottleEvent(ExpBottleEvent event) {
+    if (config_.get("ignore_experience").getBool()) return;
     final int bottle_xp = config_.get("xp_per_bottle").getInt();
     if (config_.get("disable_experience").getBool()) {
       ((Player) event.getEntity().getShooter()).giveExp(bottle_xp);
@@ -1806,6 +1808,7 @@ public class Humbug extends JavaPlugin implements Listener {
   // Diables all XP gain except when manually changed via code.
   @EventHandler
   public void onPlayerExpChangeEvent(PlayerExpChangeEvent event) {
+    if (config_.get("ignore_experience").getBool()) return;
     if (config_.get("disable_experience").getBool()) {
       event.setAmount(0);
     }
