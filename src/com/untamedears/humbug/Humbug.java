@@ -1844,6 +1844,19 @@ public class Humbug extends JavaPlugin implements Listener {
   }
   
   @BahHumbugs({
+	  @BahHumbug(opt="disable_chorus_fruit", def="true")
+  })
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void onPlayerTeleport(PlayerTeleportEvent event) {
+	  if(!config_.get("disable_chorus_fruit").getBool()) {
+		  return;
+	  }
+	  if(event.getCause().equals(PlayerTeleportEvent.TeleportCause.CHORUS_FRUIT)) {
+		  event.setCancelled(true);
+	  }
+  }
+  
+  @BahHumbugs({
 	  @BahHumbug(opt="disable_bed_nether_end", def="true")
   })
   @EventHandler(priority = EventPriority.HIGHEST)
