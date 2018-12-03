@@ -42,13 +42,13 @@ allow_water_in_nether: true
 indestructible_end_portals: true
 drop_ores_as_ore: false
 obsidian_generator: false
-nerf_strength: true
-strength_multiplier: 3
+nerf_strength: false
+strength_multiplier: 1
 buff_health_pots: true
 disable_chorus_fruit: true
 disable_elytra: true
 disable_bed_nether_end: true
-projectile_slow_chance: 30
+projectile_slow_chance: 10
 projectile_slow_ticks: 100
 ignore_experience: false
 disable_experience: true
@@ -63,7 +63,7 @@ prevent_land_boats: true
 prevent_ender_pearl_save: true
 fix_vehicle_logout_bug: true
 fix_minecart_reenter_bug: true
-ender_pearl_gravity: 0.060000
+ender_pearl_gravity: 0.050000
 saturation_multiplier: 0.0
 hunger_slowdown: 0.0
 prevent_tree_wraparound: true
